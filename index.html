@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Window Manager</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #282c34;
+      color: white;
+    }
+    .desktop {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #282c34;
+    }
+    .window {
+      position: absolute;
+      top: 50px;
+      left: 50px;
+      width: 300px;
+      height: 200px;
+      background: #444;
+      border: 2px solid #666;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .window-header {
+      background: #333;
+      padding: 10px;
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+    .window-content {
+      flex: 1;
+      padding: 10px;
+      background: #555;
+      color: white;
+    }
+    .close-btn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .close-btn:hover {
+      background: darkred;
+    }
+    .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #666;
+      cursor: nwse-resize;
+      bottom: 0;
+      right: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="desktop" id="desktop">
+    <div class="window" id="window1">
+      <div class="window-header">
+        <span>Window 1</span>
+        <button class="close-btn" onclick="closeWindow('window1')">x</button>
+      </div>
+      <div class="window-content">
+        Content goes here.
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+
+  <script>
+    const desktop = document.getElementById('desktop');
+    let isDragging = false;
+    let isResizing = false;
+    let dragStartX, dragStartY, startWidth, startHeight, currentWindow;
+
+    // Dragging functionality
+    desktop.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('window-header')) {
+        isDragging = true;
+        currentWindow = e.target.parentElement;
+        dragStartX = e.clientX - currentWindow.offsetLeft;
+        dragStartY = e.clientY - currentWindow.offsetTop;
+        currentWindow.style.zIndex = 1000;
+      }
+    });
+
+    desktop.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        currentWindow.style.left = `${e.clientX - dragStartX}px`;
+        currentWindow.style.top = `${e.clientY - dragStartY}px`;
+      } else if (isResizing) {
+        currentWindow.style.width = `${startWidth + e.clientX - dragStartX}px`;
+        currentWindow.style.height = `${startHeight + e.clientY - dragStartY}px`;
+      }
+    });
+
+    desktop.addEventListener('mouseup', () => {
+      isDragging = false;
+      isResizing = false;
+      if (currentWindow) currentWindow.style.zIndex = 1;
+    });
+
+    // Resizing functionality
+    desktop.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('resize-handle')) {
+        isResizing = true;
+        currentWindow = e.target.parentElement;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        startWidth = currentWindow.offsetWidth;
+        startHeight = currentWindow.offsetHeight;
+      }
+    });
+
+    // Close window functionality
+    function closeWindow(id) {
+      const window = document.getElementById(id);
+      if (window) window.remove();
+    }
+  </script>
+</body>
+</html>
